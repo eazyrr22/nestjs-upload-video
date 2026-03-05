@@ -7,18 +7,18 @@ import type { IStorage } from '../databases/storage.interface';
 export class GenreService {
   constructor(
     @Inject(STORAGE_TOKEN) private readonly storage: IStorage,
-  ) {}
+  ) { }
 
-  async createGenre(genre: CreateGenreDto): Promise<any> {
+  createGenre = async (genre: CreateGenreDto): Promise<any> => {
     await this.storage.insertItem('genre', genre);
     return 'genre created successfully';
   }
 
-  async getGenre(id: string): Promise<any> {
-    return await this.storage.getItem('genre',id);
+  getGenre = async (id: string): Promise<any> => {
+    return await this.storage.getItem('genre', id);
   }
 
-  async deleteGenre(id: string): Promise<string> {
+  deleteGenre = async (id: string): Promise<string> => {
     return this.storage.deleteItem('genre', id);
   }
 }
