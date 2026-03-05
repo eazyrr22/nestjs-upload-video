@@ -1,6 +1,6 @@
 import uuid from 'uuid';
 import { Connection } from 'mongoose';
-import IStorage from "./storage.interface";
+import {IStorage} from "./storage.interface";
 import { Injectable } from "@nestjs/common";
 import { InjectConnection } from '@nestjs/mongoose';
 
@@ -35,6 +35,10 @@ export class MongoService implements IStorage {
             throw new Error(`Item not found`);
         }
         return targetItem.value;
+    }
+
+    findByFilters = async (entity: string, filters: Record<string, any>): Promise<any[]> => {
+        return this.mongoConnection.collection(entity).find(filters).toArray();
     }
 
 }   

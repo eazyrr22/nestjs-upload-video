@@ -1,6 +1,5 @@
 import { join } from 'path';
 import * as fs from 'fs-extra';
-import ffmpeg from 'fluent-ffmpeg';
 import { ConfigService } from '@nestjs/config';
 import { Injectable, Inject, InternalServerErrorException } from '@nestjs/common';
 
@@ -43,6 +42,6 @@ export class VideoService {
         return this.storage.deleteItem('video', id);
     }
     findVideo(filters: Partial<CreateVideoDto>) {
-        return this.storage.findItems('video', filters);
+        return this.storage.findByFilters('video', filters);
     }
 }
