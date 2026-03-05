@@ -1,5 +1,5 @@
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Controller, Post, UseInterceptors, UploadedFile, Body, Get, Delete, Put,Query, Optional } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, Body, Get, Delete, Put,Query, Optional, Patch } from '@nestjs/common';
 
 import { VideoService } from './video.service';
 import { CreateVideoDto, UpdateVideoDto,FindVideosDto } from './video.dto';
@@ -17,12 +17,11 @@ export class VideoController {
         return this.videoService.encodeAndSave(file, dto);
     }
 
-    @Put('update/:id')
+    @Put('update')
     @UseInterceptors(FileInterceptor('file'))
     async updateVideo(
-        @Optional()
-        @UploadedFile() file: Express.Multer.File,
         @Body() dto: UpdateVideoDto,
+        @UploadedFile() file?: Express.Multer.File,
     ) {
         return this.videoService.updateVideo(dto, file);
     }
