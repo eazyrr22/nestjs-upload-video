@@ -3,6 +3,7 @@ import * as fs from 'fs-extra';
 import { ConfigService } from '@nestjs/config';
 import { Injectable, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
+import { IVideo } from './video.interface';
 import { TranscoderService } from './video.transcode';
 import { CreateVideoDto, UpdateVideoDto } from './video.dto';
 import { type IStorage } from '../databases/storage.interface';
@@ -17,7 +18,7 @@ export class VideoService {
     ) { }
 
     getAllVideos = async () => {
-        return this.storage.getItems('video');
+        return this.storage.getItems<IVideo>('video');
     }
 
     encodeAndSave = async (file: Express.Multer.File, dto: CreateVideoDto) => {
@@ -31,19 +32,19 @@ export class VideoService {
             const videoMetadata = {
                 ...dto,
                 fileUrl: outputPath,
-            };
-            await this.storage.insertItem('video', videoMetadata);
+            } as Partial<IVideo>;
+            await this.storage.insertItem<IVideo>('video', videoMetadata);
             return videoMetadata;
         } finally {
             await fs.remove(file.path);
         }
     }
 
-    async updateVideo(dto: UpdateVideoDto, file?: Express.Multer.File) {
-        const existingVideo = await this.storage.getItem('video', dto.id);
+    updateVideo = async (dto: UpdateVideoDto, file?: Express.Multer.File) => {
+        const existingVideo = await this.storage.getItem<IVideo>('video', dto.id);
         if (!existingVideo) throw new NotFoundException('Video not found');
 
-        let updateData = { ...dto };
+        let updateData = { ...dto } as Partial<IVideo>;
 
         if (file) {
             try {
@@ -54,23 +55,23 @@ export class VideoService {
 
                 await this.transcoderService.transcode(file.path, outputPath);
 
-                if (existingVideo.videoUrl) {
-                    await fs.remove(existingVideo.videoUrl);
+                if (existingVideo.fileUrl) {
+                    await fs.remove(existingVideo.fileUrl);
                 }
-                updateData['videoUrl'] = outputPath;
+                updateData['fileUrl'] = outputPath;
             } catch (error) {
                 throw new InternalServerErrorException('Failed to update video');
             } finally {
                 await fs.remove(file.path);
             }
         }
-        return this.storage.updateItem('video', updateData);
+        return this.storage.updateItem<IVideo>('video', updateData);
     }
 
-    deleteVideo(id: string) {
-        return this.storage.deleteItem('video', id);
+    deleteVideo = async (id: string) => {
+        return this.storage.deleteItem<IVideo>('video', id);
     }
-    findVideo(filters: Partial<CreateVideoDto>) {
-        return this.storage.findByFilters('video', filters);
+    findVideo = async (filters: Partial<IVideo>) => {
+        return this.storage.findByFilters!<IVideo>('video', filters);
     }
 }

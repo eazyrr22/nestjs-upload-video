@@ -1,9 +1,9 @@
 export interface IStorage {
-    insertItem(entity:string,item:object): Promise<void>;
-    deleteItem(entity: string, itemId: string): Promise<string>;
-    updateItem(entity: string,updatedProps: Partial<object>): Promise<object>;
-    getItem(entity: string, itemId: string): Promise<object | null>;
-    getItems(entity: string): Promise<object[]>;
-    findByFilters(entity: string, filters: Record<string, any>): Promise<any[]>;
+    insertItem<T>(entity:string,item:Partial<T>): Promise<void>;
+    deleteItem<T>(entity: string, itemId: string): Promise<string>;
+    updateItem<T>(entity: string,updatedProps: Partial<T>): Promise<T>;
+    getItem<T>(entity: string, itemId: string): Promise<T | null>;
+    getItems<T>(entity: string): Promise<T[]>;
+    findByFilters?<T>(entity: string, filters: Partial<T>): Promise<T[]>;
     }   
 export const STORAGE_TOKEN = 'STORAGE_SERVICE_TOKEN';
