@@ -1,49 +1,63 @@
-import { IsString, IsEmpty, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsIn } from 'class-validator';
+
+export enum VideoGenres {
+    HORROR = 'horror',
+    DOCUMENTARY = 'documentary',
+    COMEDY = 'comedy',
+    ACTION = 'action',
+    DRAMA = 'drama',
+}
 
 export class CreateVideoDto {
     @IsString()
-    @IsEmpty()
+    @IsNotEmpty()
     title: string;
 
     @IsString()
-    @IsEmpty()
+    @IsNotEmpty()
     description: string;
 
     @IsString()
-    @IsEmpty()
+    @IsNotEmpty()
     author: string;
 
     @IsString()
-    @IsEmpty()
+    @IsNotEmpty()
     @IsIn(['adults', 'teens', 'kids'])
     targetAudience: string;
 
-    @IsString()
-    @IsEmpty()  
+    @IsEnum(VideoGenres)
+    @IsNotEmpty()
     genre: string;
 
     @IsString()
-    @IsEmpty()
+    @IsNotEmpty()
     duration: string;
 }
 
 export class UpdateVideoDto {
     @IsString()
+    @IsOptional()
     title?: string;
 
     @IsString()
+    @IsOptional()   
     description?: string;
 
     @IsString()
+    @IsOptional()
     author?: string;
 
     @IsString()
     @IsIn(['adults', 'teens', 'kids'])
+    @IsOptional()
     targetAudience?: string;
 
     @IsString()
+    @IsOptional()
     genre?: string;
 
     @IsString()
+    @IsOptional()
     duration?: string;
 }       
