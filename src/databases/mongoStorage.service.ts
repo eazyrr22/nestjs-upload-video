@@ -29,8 +29,9 @@ export class MongoService implements IStorage {
         return itemId;
     }
 
-    updateItem = async (entity: string, itemId: string, updatedProps: Partial<object>): Promise<object> => {
-        const targetItem = await this.mongoConnection.collection(entity).findOneAndUpdate({ id: itemId }, { $set: updatedProps });
+    updateItem = async (entity: string, updatedProps: Partial<object>): Promise<object> => {
+        const {id, ...propsToUpdate} = updatedProps as any;
+        const targetItem = await this.mongoConnection.collection(entity).findOneAndUpdate({ id: id }, { $set: propsToUpdate }, { returnDocument: 'after' });
         if (!targetItem || !targetItem.value) {
             throw new Error(`Item not found`);
         }

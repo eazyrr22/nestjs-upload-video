@@ -48,17 +48,17 @@ export class FsService implements IStorage {
         return itemId;
     }
 
-    updateItem = async (entity: string, itemId: string, fieldstoUpdate: Partial<object>): Promise<object> => {
+    updateItem = async (entity: string, fieldstoUpdate: Partial<object>): Promise<object> => {
+        const {id, ...restFields} = fieldstoUpdate as any;
         const filePath = join(this.storageDirPath, `${entity}.json`);
         if (!(await fs.pathExists(filePath))) throw new Error('item storage not found');
 
         let items: any[] = await fs.readJSON(filePath);
-        const itemIndex = items.findIndex((item: any) => item.id === itemId);
+        const itemIndex = items.findIndex((item: any) => item.id === id);
         if (itemIndex === -1) throw new Error('item not found');
 
-        for (const key in fieldstoUpdate) {
-            if (key === 'id') continue;
-            items[itemIndex][key] = fieldstoUpdate[key];
+        for (const key in restFields) {
+            items[itemIndex][key] = restFields[key];
         }
         const updatedItem = items[itemIndex];
 

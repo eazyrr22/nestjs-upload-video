@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsIn, IsInt, IsDate } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum VideoGenres {
     HORROR = 'horror',
@@ -37,11 +38,15 @@ export class CreateVideoDto {
 
 export class UpdateVideoDto {
     @IsString()
+    @IsNotEmpty()
+    id: string;
+    
+    @IsString()
     @IsOptional()
     title?: string;
 
     @IsString()
-    @IsOptional()   
+    @IsOptional()
     description?: string;
 
     @IsString()
@@ -60,4 +65,30 @@ export class UpdateVideoDto {
     @IsString()
     @IsOptional()
     duration?: string;
-}       
+}
+export class FindVideosDto {
+    @IsOptional()
+    @IsString()
+    title?: string;
+
+    @IsOptional()
+    @IsEnum(VideoGenres)
+    genre?: VideoGenres;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    minDuration?: number;
+
+    @IsOptional()
+    @IsString()
+    description?: string;
+
+    @IsOptional()
+    @IsString()
+    targetAudience?: string;
+
+    @IsOptional()
+    @IsDate()
+    createdAt?: Date;
+}
