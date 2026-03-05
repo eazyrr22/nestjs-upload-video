@@ -16,8 +16,8 @@ export class TranscoderService {
         this.ffmpegPath = process.env.FFMPEG_PATH || '/usr/local/bin/ffmpeg';
         ffmpeg.setFfmpegPath(this.ffmpegPath);
         this.encoderOptions = {
-            codec: this.configService.get<string>('VIDEO_CODEC', 'libx264'),
-            bitrate: this.configService.get<string>('VIDEO_BITRATE', '1000k'),
+            codec: this.configService.get<string>('videoSettings.codec', 'libx264'),
+            bitrate: this.configService.get<string>('videoSettings.bitrate', '1000k'),
         };
     }
 

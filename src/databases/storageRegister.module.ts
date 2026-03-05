@@ -5,7 +5,7 @@ import { STORAGE_TOKEN } from './storage.interface';
 
 @Global()
 @Module({})
-export class StorageRegisterModule {
+export class StorageRegister {
     static register(storageType: 'mongo' | 'fs'): DynamicModule {
         const selectedProvider = {
             provide: STORAGE_TOKEN,
@@ -13,7 +13,7 @@ export class StorageRegisterModule {
         }
 
         return {
-            module: StorageRegisterModule,
+            module: StorageRegister,
             providers: [selectedProvider,MongoService,FsService],
             exports: [selectedProvider],
         };

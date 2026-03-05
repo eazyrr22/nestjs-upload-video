@@ -23,7 +23,7 @@ export class VideoService {
 
     encodeAndSave = async (file: Express.Multer.File, dto: CreateVideoDto) => {
         try {
-            const storagePath = this.configService.get<string>('FILE_STORAGE_PATH')!;
+            const storagePath = this.configService.get<string>('localStorage.localStoragePath')!;
 
             await fs.ensureDir(storagePath);
             const outputPath = join(storagePath, `encoded-${file.filename}.mp4`);
@@ -48,7 +48,7 @@ export class VideoService {
 
         if (file) {
             try {
-                const storagePath = this.configService.get<string>('FILE_STORAGE_PATH')!;
+                const storagePath = this.configService.get<string>('localStorage.localStoragePath')!;
 
                 await fs.ensureDir(storagePath);
                 const outputPath = join(storagePath, `encoded-${file.filename}.mp4`);

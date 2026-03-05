@@ -5,7 +5,6 @@ export const envValidationSchema = Joi.object({
     MONGO_URI: Joi.string().required(),
     MONGO_DB_NAME: Joi.string().required(),
     LOCAL_STORAGE_PATH: Joi.string().required(),
-    VIDEO_PATH: Joi.string().required(),
-    PLAYLIST_PATH: Joi.string().required(),
-    GENRE_PATH: Joi.string().required()
+    VIDEO_CODEC: Joi.string().default('libx264'),
+    VIDEO_BITRATE: Joi.string().default('1000k'),   
 })  
