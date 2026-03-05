@@ -1,4 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
+
+import { IPlaylist } from "./playlist.interface";
 import { STORAGE_TOKEN } from '../databases/storage.interface';
 import type { IStorage } from '../databases/storage.interface';
 import { CreatePlaylistDto, UpdatePlaylistDto } from "./playlist.dto";
@@ -11,18 +13,18 @@ export class PlaylistService {
     ) { }
 
      createPlaylist = async (playlist: CreatePlaylistDto): Promise<any> => {
-        await this.storage.insertItem('playlist', playlist);
+        await this.storage.insertItem<IPlaylist>('playlist', playlist);
         return 'playlist created successfully';
     }
 
      getPlaylist = async (id: string): Promise<any> => {
-        return  this.storage.getItem('playlist', id);
+        return  this.storage.getItem<IPlaylist>('playlist', id);
     }
 
      deletePlaylist = async (id: string): Promise<string> => {
-        return this.storage.deleteItem('playlist', id);
+        return this.storage.deleteItem<IPlaylist>('playlist', id);
     }
     updatePlaylist = async (id: string, playlist: UpdatePlaylistDto): Promise<any> => {
-        return this.storage.updateItem('playlist', id, playlist);
+        return this.storage.updateItem<IPlaylist>('playlist', playlist);
     }
 }   
