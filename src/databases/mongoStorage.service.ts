@@ -1,6 +1,6 @@
 import uuid from 'uuid';
 import { Connection } from 'mongoose';
-import IStorage from "./storage.interface";
+import { IStorage } from "./storage.interface";
 import { Injectable } from "@nestjs/common";
 import { InjectConnection } from '@nestjs/mongoose';
 
@@ -8,33 +8,38 @@ import { InjectConnection } from '@nestjs/mongoose';
 export class MongoService implements IStorage {
     constructor(@InjectConnection() private readonly mongoConnection: Connection) { }
 
-    getItems = async (entity: string): Promise<object[]> => {
-        return this.mongoConnection.collection(entity).find().toArray();
+    getItems = async <T>(entity: string): Promise<T[] | []> => {
+        return this.mongoConnection.collection(entity).find().toArray() as Promise<T[] | []>;;
     }
 
-    getItem = async (entity: string, itemId: string): Promise<object | null> => {
-        return this.mongoConnection.collection(entity).findOne({ id: itemId });
+    getItem = async <T>(entity: string, itemId: string): Promise<T | null> => {
+        return this.mongoConnection.collection(entity).findOne({ id: itemId }) as T | null;
     }
 
-    insertItem = async (entity: string, item: object): Promise<void> => {
+    insertItem = async <T>(entity: string, item: Partial<T>): Promise<void> => {
         const structuredItem = {
             ...item,
             id: uuid.v4(),
-        };
+        } as any;
         await this.mongoConnection.collection(entity).insertOne(structuredItem);
     }
 
-    deleteItem = async (entity: string, itemId: string): Promise<string> => {
+    deleteItem = async <T>(entity: string, itemId: string): Promise<string> => {
         await this.mongoConnection.collection(entity).deleteOne({ id: itemId });
         return itemId;
     }
 
-    updateItem = async (entity: string, itemId: string, updatedProps: Partial<object>): Promise<object> => {
-        const targetItem = await this.mongoConnection.collection(entity).findOneAndUpdate({ id: itemId }, { $set: updatedProps });
+    updateItem = async <T>(entity: string, updatedProps: Partial<T>): Promise<T> => {
+        const { id, ...propsToUpdate } = updatedProps as any;
+        const targetItem = await this.mongoConnection.collection(entity).findOneAndUpdate({ id: id }, { $set: propsToUpdate }, { returnDocument: 'after' });
         if (!targetItem || !targetItem.value) {
             throw new Error(`Item not found`);
         }
         return targetItem.value;
+    }
+
+    findByFilters = async <T>(entity: string, filters: Partial<T>): Promise<T[]|[]> => {
+        return this.mongoConnection.collection(entity).find(filters).toArray() as Promise<T[]|[]>;
     }
 
 }   
