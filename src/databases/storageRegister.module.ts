@@ -7,15 +7,15 @@ import { STORAGE_TOKEN } from './storage.interface';
 @Module({})
 export class StorageRegister {
     static register(storageType: 'mongo' | 'fs'): DynamicModule {
-        const selectedProvider = {
-            provide: STORAGE_TOKEN,
-            useClass: storageType === 'mongo' ? MongoService : FsService,
-        }
+        const selectedProvider = (storageType === 'mongo') ? MongoService : FsService;
 
         return {
             module: StorageRegister,
-            providers: [selectedProvider,MongoService,FsService],
-            exports: [selectedProvider],
+            providers: [selectedProvider, {
+                provide: STORAGE_TOKEN,
+                useExisting: selectedProvider
+            }],
+            exports: [STORAGE_TOKEN],
         };
     }
 }

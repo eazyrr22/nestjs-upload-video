@@ -11,20 +11,35 @@ import { envValidationSchema } from './config/env.validation';
 import { MongoService } from './databases/mongoStorage.service';
 import { StorageRegister } from './databases/storageRegister.module';
 
-@Module({
-  imports: [ConfigModule.forRoot({
+const storageType = process.env.STORAGE_TYPE || 'fs';
+
+const dynamicImports = [
+  ConfigModule.forRoot({
     isGlobal: true,
     load: [envConfig],
     validationSchema: envValidationSchema,
-  }),
-  MongooseModule.forRootAsync({
-    imports: [ConfigModule],
-    inject: [ConfigService],
-    useFactory: async (configService: ConfigService) => ({
-      uri: configService.get<string>(`database.mongoUri/${configService.get<string>('database.mongoDbName')}`)!,
-    }),
-  }), StorageRegister.register('fs'),
-    VideoModule, GenreModule, PlaylistModule],
+  }), StorageRegister.register(storageType as 'fs' | 'mongo'),
+  VideoModule,
+  GenreModule,
+  PlaylistModule,
+];
+
+if (storageType === 'mongo') {
+  dynamicImports.push(
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        const uri = configService.get<string>('database.mongoUri');
+        const dbName = configService.get<string>('database.mongoDbName');
+        return { uri: `${uri}/${dbName}` };
+      },
+    })
+  );
+}
+
+@Module({
+  imports: dynamicImports,
   providers: [FsService, MongoService],
 })
 export class AppModule { }
