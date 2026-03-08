@@ -1,6 +1,7 @@
 export default () => ({
-    port: Number(process.env.PORT) || 3000,
+    port: process.env.PORT,
     ffmpegPath: process.env.FFMPEG_PATH,
+    storageType: process.env.STORAGE_TYPE,
     database: {
         mongoUri: process.env.MONGO_URI,
         mongoDbName: process.env.MONGO_DB_NAME
