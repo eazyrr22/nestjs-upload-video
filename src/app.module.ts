@@ -40,6 +40,5 @@ if (storageType === 'mongo') {
 
 @Module({
   imports: dynamicImports,
-  providers: [FsService, MongoService],
 })
 export class AppModule { }
