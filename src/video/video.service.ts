@@ -4,10 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { Injectable, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 import { IVideo } from './video.interface';
-import { TranscoderService } from './video.transcode';
 import { CreateVideoDto, UpdateVideoDto } from './video.dto';
 import { type IStorage } from '../databases/storage.interface';
 import { STORAGE_TOKEN } from '../databases/storage.interface';
+import { TranscoderService } from '../ffmpeg/transcode.service';
 
 @Injectable()
 export class VideoService {

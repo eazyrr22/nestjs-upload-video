@@ -1,11 +1,11 @@
 import { diskStorage } from 'multer';
 import { Module } from "@nestjs/common";
-import { v4  } from 'uuid';
+import { v4 } from 'uuid';
 import { MulterModule } from '@nestjs/platform-express';
 
 import { VideoService } from './video.service';
 import { VideoController } from './video.controller';
-import { TranscoderService } from './video.transcode';
+import { TranscodeModule } from 'src/ffmpeg/transcode.module';
 
 @Module({
     imports: [
@@ -17,11 +17,12 @@ import { TranscoderService } from './video.transcode';
                     cb(null, newFilename);
                 }
             })
-        })
+        }),
+        TranscodeModule,
     ],
     controllers: [VideoController],
-    providers: [VideoService, TranscoderService],
+    providers: [VideoService],
 })
-export class VideoModule {}
+export class VideoModule { }
 
- 
+

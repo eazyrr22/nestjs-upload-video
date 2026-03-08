@@ -1,9 +1,8 @@
 import { dirname } from 'path';
 import * as fs from 'fs-extra';
-
 import ffmpeg from 'fluent-ffmpeg';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class TranscoderService {
@@ -13,7 +12,7 @@ export class TranscoderService {
 
     constructor(configService: ConfigService) {
         this.configService = configService;
-        this.ffmpegPath = process.env.FFMPEG_PATH || '/usr/local/bin/ffmpeg';
+        this.ffmpegPath = process.env.FFMPEG_PATH! ;
         ffmpeg.setFfmpegPath(this.ffmpegPath);
         this.encoderOptions = {
             codec: this.configService.get<string>('videoSettings.codec', 'libx264'),
