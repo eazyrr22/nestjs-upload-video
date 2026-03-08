@@ -31,9 +31,10 @@ export class TranscoderService {
                 .on('start', () => {
                     console.log('start transcoding');
                 })
-                .on('end', () => {
+                .on('end', async () => {
                     console.log('Transcoding finished');
-                    resolve();
+                    await fs.remove(inputPath);
+                    return resolve();
                 })
                 .on('error', (err) => {
                     fs.removeSync(inputPath);
