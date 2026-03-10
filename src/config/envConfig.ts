@@ -3,6 +3,7 @@ export default () => ({
     ffmpegPath: process.env.FFMPEG_PATH,
     databaseType: process.env.DATABASE_TYPE,
     fileStorageType: process.env.FILE_STORAGE_TYPE,
+    tempUploadsDir: process.env.TEMP_UPLOADS_DIR,
     s3: {
         accessKeyId: process.env.S3_ACCESS_KEY_ID,
         secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
