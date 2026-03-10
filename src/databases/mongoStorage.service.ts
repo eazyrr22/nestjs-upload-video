@@ -1,8 +1,9 @@
 import uuid from 'uuid';
 import { Connection } from 'mongoose';
-import { IStorage } from "./storage.interface";
 import { Injectable } from "@nestjs/common";
 import { InjectConnection } from '@nestjs/mongoose';
+
+import { IStorage } from "./storage.interface";
 
 @Injectable()
 export class MongoService implements IStorage {

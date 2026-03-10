@@ -14,7 +14,7 @@ export class VideoController {
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreateVideoDto,
     ) {
-        return this.videoService.encodeAndSave(file, dto);
+        return this.videoService.uploadAndSaveVideo(file, dto);
     }
 
     @Put('update')
