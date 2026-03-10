@@ -1,6 +1,6 @@
+import { v4 } from 'uuid';
 import { diskStorage } from 'multer';
 import { Module } from "@nestjs/common";
-import { v4 } from 'uuid';
 import { MulterModule } from '@nestjs/platform-express';
 
 import { VideoService } from './video.service';

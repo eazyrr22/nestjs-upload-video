@@ -4,6 +4,7 @@ export const envValidationSchema = Joi.object({
     PORT: Joi.number().default(3000),
     STORAGE_TYPE: Joi.string().valid('fs', 'mongo').default('fs'),
     FILE_STORAGE_TYPE: Joi.string().valid('fs', 's3').default('fs'),
+    VIDEO_FILE_DIR_PATH: Joi.string().default('localStorage/videos'),
     AWS_S3_BUCKET_NAME: Joi.string().when('FILE_STORAGE_TYPE', {
         is: 's3',
         then: Joi.string().required(),

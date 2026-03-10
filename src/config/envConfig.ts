@@ -1,7 +1,7 @@
 export default () => ({
     port: process.env.PORT,
     ffmpegPath: process.env.FFMPEG_PATH,
-    storageType: process.env.STORAGE_TYPE,
+    databaseType: process.env.DATABASE_TYPE,
     fileStorageType: process.env.FILE_STORAGE_TYPE,
     s3: {
         accessKeyId: process.env.S3_ACCESS_KEY_ID,
@@ -14,7 +14,8 @@ export default () => ({
         mongoDbName: process.env.MONGO_DB_NAME
     },
     localStorage: {
-        localStoragePath: process.env.LOCAL_STORAGE_PATH
+        localStoragePath: process.env.LOCAL_STORAGE_PATH,
+        videoFileDirPath: process.env.VIDEO_FILE_DIR_PATH
     }, 
     videoSettings: {
         codec: process.env.VIDEO_CODEC,

@@ -5,13 +5,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { VideoModule } from './video/video.module';
 import { GenreModule } from './genre/genre.module';
-import { FsService } from './databases/fsStorage.service';
 import { PlaylistModule } from './playlist/playlist.module';
 import { envValidationSchema } from './config/env.validation';
-import { MongoService } from './databases/mongoStorage.service';
 import { StorageRegister } from './databases/storageRegister.module';
 
-const storageType = process.env.STORAGE_TYPE || 'fs';
+const storageType = process.env.DATABASE_TYPE || 'fs';
 
 const dynamicImports = [
   ConfigModule.forRoot({

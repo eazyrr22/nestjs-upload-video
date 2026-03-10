@@ -11,7 +11,7 @@ export class FsService implements IStorage {
     private readonly storageDirPath: string;
 
     constructor(private readonly configService: ConfigService) {
-        this.storageDirPath = this.configService.get<string>('LOCAL_STORAGE_PATH') || './localStorage';
+        this.storageDirPath = this.configService.get<string>('localStorage.localStoragePath') || './localStorage';
     }
     getItem = async <T>(entity: string, itemId: string): Promise<T | null> => {
         const filePath = join(this.storageDirPath, `${entity}.json`);
