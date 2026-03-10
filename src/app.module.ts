@@ -7,22 +7,25 @@ import { VideoModule } from './video/video.module';
 import { GenreModule } from './genre/genre.module';
 import { PlaylistModule } from './playlist/playlist.module';
 import { envValidationSchema } from './config/env.validation';
+import {FileStorageModule} from './fileStorage/fileStorage.module';
 import { StorageRegister } from './databases/storageRegister.module';
 
-const storageType = process.env.DATABASE_TYPE || 'fs';
+const databaseType = process.env.DATABASE_TYPE || 'fs';
+const fileStorageType = process.env.FILE_STORAGE_TYPE || 'fs';
 
 const dynamicImports = [
   ConfigModule.forRoot({
     isGlobal: true,
     load: [envConfig],
     validationSchema: envValidationSchema,
-  }), StorageRegister.register(storageType as 'fs' | 'mongo'),
+  }), StorageRegister.register(databaseType as 'fs' | 'mongo'),
+  FileStorageModule.register(fileStorageType as 'fs' | 's3'),
   VideoModule,
   GenreModule,
   PlaylistModule,
 ];
 
-if (storageType === 'mongo') {
+if (databaseType === 'mongo') {
   dynamicImports.push(
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

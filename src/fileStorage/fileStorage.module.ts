@@ -1,10 +1,11 @@
 import { S3Client } from "@aws-sdk/client-s3";
-import { DynamicModule, Module } from "@nestjs/common";
+import { DynamicModule, Global, Module } from "@nestjs/common";
 
 import { S3FileService } from "./s3.service";
 import { FsFileService } from "./fs.service";
 import { FILE_STORAGE_TOKEN } from "./fileStorage.interface";
 
+@Global()
 @Module({})
 export class FileStorageModule {
     static register(fileStorageType: 'fs' | 's3'): DynamicModule {
