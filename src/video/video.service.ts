@@ -1,21 +1,23 @@
 import { join } from 'path';
 import * as fs from 'fs-extra';
 import { ConfigService } from '@nestjs/config';
-import { Injectable, Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 
 import { IVideo } from './video.interface';
 import { CreateVideoDto, UpdateVideoDto } from './video.dto';
 import { type IStorage } from '../databases/storage.interface';
 import { STORAGE_TOKEN } from '../databases/storage.interface';
 import { TranscoderService } from '../ffmpeg/transcode.service';
+import { type IFileStorage } from 'src/fileStorage/fileStorage.interface';
+import { FILE_STORAGE_TOKEN } from 'src/fileStorage/fileStorage.interface';
 
 @Injectable()
 export class VideoService {
     constructor(
         @Inject(STORAGE_TOKEN) private readonly storage: IStorage,
+        @Inject(FILE_STORAGE_TOKEN) private readonly fileStorage: IFileStorage,
         private readonly configService: ConfigService,
-        private readonly transcoderService: TranscoderService,
-        private readonly fileStorage: IFileStorage;
+        private readonly transcoderService: TranscoderService
     ) { }
 
     encodeVideo = async (file: Express.Multer.File,) => {
@@ -42,8 +44,9 @@ export class VideoService {
 
     saveVideoFile = async (sourceFilePath: string) => {
 
-        await fs.pathExists(sourceFilePath);
-
+        if (!await fs.pathExists(sourceFilePath)) {
+            throw new Error('Source file does not exist');
+        }
         const url = await this.fileStorage.saveFile(sourceFilePath);
 
         return url;
@@ -75,8 +78,8 @@ export class VideoService {
 
             const url = await this.saveVideoFile(outputPath);
 
-            if (existingVideo.fileUrl) { await fs.remove(existingVideo.fileUrl);}
-        
+            if (existingVideo.fileUrl) { await this.fileStorage.deleteFile(existingVideo.fileUrl); }
+
             await fs.remove(outputPath);
 
             updateData['fileUrl'] = url;
@@ -85,8 +88,15 @@ export class VideoService {
     }
 
     deleteVideo = async (id: string) => {
+        const fileName = (await this.storage.getItem<IVideo>('video', id))?.fileUrl;
+
+        if (!fileName) {
+            throw new NotFoundException('Video not found');
+        }
+        await this.fileStorage.deleteFile(fileName);
         return this.storage.deleteItem<IVideo>('video', id);
     }
+
     findVideo = async (filters: Partial<IVideo>) => {
         return this.storage.findByFilters!<IVideo>('video', filters);
     }

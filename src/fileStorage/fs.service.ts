@@ -7,16 +7,12 @@ import { IFileStorage } from './fileStorage.interface';
 @Injectable()
 export class FsFileService implements IFileStorage {
     constructor(private readonly configService: ConfigService,
-        private readonly videoStoragePath = this.configService.get<string>('fileStorage.videoDirPath')
+        private readonly videoFileDirPath = this.configService.get<string>('fileStorage.videoDirPath')
     ) { }
 
     saveFile = async (sourceFilePath: string): Promise<string> => {
-        if (!await fs.pathExists(sourceFilePath)) {
-            throw new Error('Source file does not exist');
-        }
-
         const fileName = sourceFilePath.split('/').pop()!;
-        const destinationPath = `${this.videoStoragePath}/${fileName}`;
+        const destinationPath = `${this.videoFileDirPath}/${fileName}`;
 
         await fs.move(sourceFilePath, destinationPath, { overwrite: true });
 
@@ -25,5 +21,16 @@ export class FsFileService implements IFileStorage {
         return destinationPath;
     }
 
+    deleteFile = async (fileName: string): Promise<void> => {
+        const filePath = `${this.videoFileDirPath}/${fileName}`;
+        const fileExists = await fs.pathExists(filePath);
 
+        if (fileExists) {
+            await fs.remove(filePath);
+            console.log(`File deleted successfully`);
+        }
+        else {
+            throw new Error('File does not exist');
+        }
+    }
 }
