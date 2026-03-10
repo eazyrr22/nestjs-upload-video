@@ -1,4 +1,4 @@
-import MongooseModule from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import { DynamicModule, Module, Global } from '@nestjs/common';
 
 import { FsService } from './fsStorage.service';
