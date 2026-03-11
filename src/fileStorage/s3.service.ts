@@ -1,9 +1,10 @@
 import * as fs from 'fs-extra';
 import { ConfigService } from '@nestjs/config';
 import { Inject, Injectable } from "@nestjs/common";
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3";
 
 import { IFileStorage, FILE_STORAGE_TOKEN } from "./fileStorage.interface";
+import { baseExeptions } from 'src/common/custom-errors';
 
 @Injectable()
 export class S3FileService implements IFileStorage {
@@ -14,34 +15,33 @@ export class S3FileService implements IFileStorage {
     ) { }
 
     saveFile = async (sourceFilePath: string): Promise<string> => {
-        const fileName = sourceFilePath.split('/').pop()!;
-        const streamFile = fs.createReadStream(sourceFilePath);
-        const command = new PutObjectCommand({
-            Bucket: this.bucketName,
-            Key: fileName,
-            Body: streamFile,
-            ContentType: 'video/mp4'
-        });
+        try {
+            const fileName = sourceFilePath.split('/').pop()!;
+            const streamFile = fs.createReadStream(sourceFilePath);
+            const command = new PutObjectCommand({
+                Bucket: this.bucketName,
+                Key: fileName,
+                Body: streamFile,
+                ContentType: 'video/mp4'
+            });
+            await this.s3Client.send(command);
 
-        const response = await this.s3Client.send(command);
-
-        if (response.$metadata.httpStatusCode !== 200) {
-            throw new Error('Failed to upload file to S3');
+            return 'File uploaded successfully';
+        } catch (error) {
+                throw new baseExeptions(error.message, error.$metadata.httpStatusCode ?? 500, 'UPLOAD_FAILURE');
         }
-        const message = 'File uploaded successfully';
-        return message;
     }
 
     deleteFile = async (fileName: string): Promise<void> => {
-        const command = new DeleteObjectCommand({
-            Bucket: this.bucketName,
-            Key: fileName
-        });
+        try {
+            const command = new DeleteObjectCommand({
+                Bucket: this.bucketName,
+                Key: fileName
+            });
+            await this.s3Client.send(command);
 
-        const response = await this.s3Client.send(command);
-
-        if (response.$metadata.httpStatusCode !== 200) {
-            throw new Error('Failed to delete file from S3');
+        } catch (error) {
+                throw new baseExeptions(error.message, error.$metadata.httpStatusCode ?? 500, 'UPLOAD_FAILURE');
         }
     }
 }

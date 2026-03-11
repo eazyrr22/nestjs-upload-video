@@ -2,7 +2,8 @@ import { dirname } from 'path';
 import * as fs from 'fs-extra';
 import ffmpeg from 'fluent-ffmpeg';
 import { ConfigService } from '@nestjs/config';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { baseExeptions } from 'src/common/custom-errors';
 
 @Injectable()
 export class TranscoderService {
@@ -39,7 +40,7 @@ export class TranscoderService {
                 .on('error', (err) => {
                     fs.removeSync(inputPath);
                     console.error('error while transcoding: ' + err.message);
-                    reject(new InternalServerErrorException('Transcoding failed'));
+                    reject(new baseExeptions(err.message,HttpStatus.CONFLICT,'FFMPEG_FAILURE'));
                 })
                 .save(outputPath);
         });

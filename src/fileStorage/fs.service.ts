@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { IFileStorage } from './fileStorage.interface';
+import { NotFoundException } from 'src/common/custom-errors';
 
 @Injectable()
 export class FsFileService implements IFileStorage {
@@ -30,7 +31,7 @@ export class FsFileService implements IFileStorage {
             console.log(`File deleted successfully`);
         }
         else {
-            throw new Error('File does not exist');
+            throw new NotFoundException(fileName);
         }
     }
 }
