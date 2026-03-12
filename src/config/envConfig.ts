@@ -19,6 +19,7 @@ export default () => ({
         videoFileDirPath: process.env.VIDEO_FILE_DIR_PATH
     }, 
     videoSettings: {
+        maxSise:process.env.MAX_FILE_SIZE,
         codec: process.env.VIDEO_CODEC,
         bitrate: process.env.VIDEO_BITRATE
     }

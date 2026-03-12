@@ -38,6 +38,7 @@ export const envValidationSchema = Joi.object({
     }),
     FFMPEG_PATH: Joi.string().required(),
     LOCAL_STORAGE_PATH: Joi.string().required(),
+    MAX_FILE_SIZE:Joi.number().default(1024*1024*1024*5),
     VIDEO_CODEC: Joi.string().default('libx264'),
     VIDEO_BITRATE: Joi.string().default('1000k'),   
 })  
