@@ -44,9 +44,8 @@ export class VideoService {
 
     saveVideoFile = async (sourceFilePath: string) => {
 
-        if (!await fs.pathExists(sourceFilePath)) {
-            throw new Error('Source file does not exist');
-        }
+        if (!await fs.pathExists(sourceFilePath)) {throw new NotFoundException(sourceFilePath);}
+        
         const url = await this.fileStorage.saveFile(sourceFilePath);
 
         return url;

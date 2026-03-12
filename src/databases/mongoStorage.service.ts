@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectConnection } from '@nestjs/mongoose';
 
 import { IStorage } from "./storage.interface";
+import { NotFoundException } from 'src/common/custom-errors';
 
 @Injectable()
 export class MongoService implements IStorage {
@@ -26,21 +27,28 @@ export class MongoService implements IStorage {
     }
 
     deleteItem = async <T>(entity: string, itemId: string): Promise<string> => {
+
         await this.mongoConnection.collection(entity).deleteOne({ id: itemId });
+        
         return itemId;
     }
 
     updateItem = async <T>(entity: string, updatedProps: Partial<T>): Promise<T> => {
         const { id, ...propsToUpdate } = updatedProps as any;
-        const targetItem = await this.mongoConnection.collection(entity).findOneAndUpdate({ id: id }, { $set: propsToUpdate }, { returnDocument: 'after' });
-        if (!targetItem || !targetItem.value) {
-            throw new Error(`Item not found`);
-        }
+
+        const targetItem = await this.mongoConnection.collection(entity).findOneAndUpdate(
+            { id: id },
+            { $set: propsToUpdate },
+            { returnDocument: 'after' }
+        );
+
+        if (!targetItem || !targetItem.value) { throw new NotFoundException(entity); }
+
         return targetItem.value;
     }
 
-    findByFilters = async <T>(entity: string, filters: Partial<T>): Promise<T[]|[]> => {
-        return this.mongoConnection.collection(entity).find(filters).toArray() as Promise<T[]|[]>;
+    findByFilters = async <T>(entity: string, filters: Partial<T>): Promise<T[] | []> => {
+        return this.mongoConnection.collection(entity).find(filters).toArray() as Promise<T[] | []>;
     }
 
 }   
