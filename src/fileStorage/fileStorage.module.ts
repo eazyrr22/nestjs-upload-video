@@ -3,36 +3,40 @@ import { DynamicModule, Global, Module } from "@nestjs/common";
 
 import { S3FileService } from "./s3.service";
 import { FsFileService } from "./fs.service";
-import { FILE_STORAGE_TOKEN } from "./fileStorage.interface";
+import { FILE_STORAGE_TOKEN,S3_CLIENT_TOKEN } from "./fileStorage.interface";
 
 @Global()
 @Module({})
 export class FileStorageModule {
     static register(fileStorageType: 'fs' | 's3'): DynamicModule {
-        const importDependencies: any[] = [];
-        let selectedProvider ;
+        const providers: any[] = [];
+        let selectedService;
 
         if (fileStorageType === 's3') {
-            const s3Client = new S3Client({
-                region: process.env.AWS_REGION!,
-                credentials: {
-                    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-                },
+            providers.push({
+                provide: S3_CLIENT_TOKEN,
+                useFactory: () => new S3Client({
+                    region: process.env.AWS_REGION!,
+                    credentials: {
+                        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+                        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+                    }
+                })
             });
-            importDependencies.push({ s3Client });
-            selectedProvider = S3FileService;
+            providers.push(S3FileService);
+            selectedService = S3FileService;
         }
         else {
-            selectedProvider = FsFileService;
+            providers.push(FsFileService);
+            selectedService = FsFileService;
         }
         return {
             module: FileStorageModule,
-            imports: importDependencies,
-            providers: [selectedProvider, {
-                provide: FILE_STORAGE_TOKEN,
-                useExisting: selectedProvider
-            }],
+            providers: [
+                ...providers, {
+                    provide: FILE_STORAGE_TOKEN,
+                    useExisting: selectedService
+                }],
             exports: [FILE_STORAGE_TOKEN]
         }
     }

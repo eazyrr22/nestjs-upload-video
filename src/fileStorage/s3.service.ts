@@ -3,13 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { Inject, Injectable } from "@nestjs/common";
 import { DeleteObjectCommand, PutObjectCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3";
 
-import { IFileStorage, FILE_STORAGE_TOKEN } from "./fileStorage.interface";
+import { IFileStorage ,S3_CLIENT_TOKEN} from "./fileStorage.interface";
 import { baseExeptions } from 'src/common/custom-errors';
 
 @Injectable()
 export class S3FileService implements IFileStorage {
     constructor(
-        @Inject(FILE_STORAGE_TOKEN) private readonly s3Client: S3Client,
+        @Inject(S3_CLIENT_TOKEN) private readonly s3Client: S3Client,
         private readonly configService: ConfigService,
         private readonly bucketName = this.configService.get<string>('s3.bucketName')!
     ) { }
