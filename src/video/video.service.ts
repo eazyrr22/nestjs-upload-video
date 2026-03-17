@@ -1,9 +1,10 @@
 import { join } from 'path';
 import * as fs from 'fs-extra';
-import { ConfigService } from '@nestjs/config';
+import { type ConfigType } from '@nestjs/config';
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 
 import { IVideo } from './video.interface';
+import { localStorageConfig } from 'src/config/envConfig';
 import { CreateVideoDto, UpdateVideoDto } from './video.dto';
 import { type IStorage } from '../databases/storage.interface';
 import { STORAGE_TOKEN } from '../databases/storage.interface';
@@ -16,12 +17,12 @@ export class VideoService {
     constructor(
         @Inject(STORAGE_TOKEN) private readonly storage: IStorage,
         @Inject(FILE_STORAGE_TOKEN) private readonly fileStorage: IFileStorage,
-        private readonly configService: ConfigService,
+        private readonly localStoragePathes: ConfigType<typeof localStorageConfig>,
         private readonly transcoderService: TranscoderService
     ) { }
 
     encodeVideo = async (file: Express.Multer.File,) => {
-        const storagePath = this.configService.get<string>('localStorage.localStoragePath')!;
+        const storagePath = this.localStoragePathes.videoFilesDirPath!;
 
         await fs.ensureDir(storagePath);
 
@@ -44,8 +45,8 @@ export class VideoService {
 
     saveVideoFile = async (sourceFilePath: string) => {
 
-        if (!await fs.pathExists(sourceFilePath)) {throw new NotFoundException(sourceFilePath);}
-        
+        if (!await fs.pathExists(sourceFilePath)) { throw new NotFoundException(sourceFilePath); }
+
         const url = await this.fileStorage.saveFile(sourceFilePath);
 
         return url;

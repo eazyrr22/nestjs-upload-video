@@ -1,23 +1,23 @@
 import { dirname } from 'path';
 import * as fs from 'fs-extra';
 import ffmpeg from 'fluent-ffmpeg';
-import { ConfigService } from '@nestjs/config';
+import { type ConfigType } from '@nestjs/config';
 import { HttpStatus, Injectable } from '@nestjs/common';
+
+import { transcodeConfig } from 'src/config/envConfig';
 import { baseExeptions } from 'src/common/custom-errors';
 
 @Injectable()
 export class TranscoderService {
-    private readonly ffmpegPath: string;
-    private readonly configService: ConfigService;
-    private readonly encoderOptions: { codec: string, bitrate: string };
-
-    constructor(configService: ConfigService) {
-        this.configService = configService;
-        this.ffmpegPath = process.env.FFMPEG_PATH! ;
+    constructor( private readonly ffmpegPath: string,
+    private readonly transcodeSettings: ConfigType <typeof transcodeConfig>,
+    private readonly encoderOptions: { codec: string, bitrate: string }
+) {
+        this.ffmpegPath = transcodeSettings.ffmpegPath! ;
         ffmpeg.setFfmpegPath(this.ffmpegPath);
         this.encoderOptions = {
-            codec: this.configService.get<string>('videoSettings.codec', 'libx264'),
-            bitrate: this.configService.get<string>('videoSettings.bitrate', '1000k'),
+            codec: this.transcodeSettings.codec!,
+            bitrate: this.transcodeSettings.bitrate!,
         };
     }
 
