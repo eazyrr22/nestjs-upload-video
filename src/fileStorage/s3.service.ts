@@ -1,9 +1,10 @@
 import * as fs from 'fs-extra';
 import { basename } from 'path';
-import { ConfigService } from '@nestjs/config';
+import { type ConfigType } from '@nestjs/config';
 import { Inject, Injectable } from "@nestjs/common";
 import { DeleteObjectCommand, PutObjectCommand, S3Client, S3ServiceException } from "@aws-sdk/client-s3";
 
+import { s3Config,fileUploadConfig } from 'src/config/envConfig';
 import { IFileStorage, S3_CLIENT_TOKEN } from "./fileStorage.interface";
 import { baseExeptions, validationException } from 'src/common/custom-errors';
 
@@ -11,9 +12,10 @@ import { baseExeptions, validationException } from 'src/common/custom-errors';
 export class S3FileService implements IFileStorage {
     constructor(
         @Inject(S3_CLIENT_TOKEN) private readonly s3Client: S3Client,
-        private readonly configService: ConfigService,
-        private readonly bucketName = this.configService.get<string>('s3.bucketName')!,
-        private readonly maxFileSize = this.configService.get<number>('videoSetting.maxSize')!
+        private readonly s3_config: ConfigType<typeof s3Config>,
+        private readonly uploadConfig:ConfigType <typeof fileUploadConfig>,
+        private readonly bucketName = this.s3_config.bucketName!,
+        private readonly maxFileSize = this.uploadConfig.maxFileSize!
     ) { }
 
     saveFile = async (sourceFilePath: string): Promise<string> => {

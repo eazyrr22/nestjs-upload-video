@@ -1,16 +1,18 @@
 import * as fs from 'fs-extra';
 import {basename} from 'path';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { type ConfigType } from '@nestjs/config';
 
 import { IFileStorage } from './fileStorage.interface';
+import {fileUploadConfig, localStorageConfig} from 'src/config/envConfig'
 import { NotFoundException,validationException } from 'src/common/custom-errors';
 
 @Injectable()
 export class FsFileService implements IFileStorage {
-    constructor(private readonly configService: ConfigService,
-        private readonly videoFileDirPath = this.configService.get<string>('fileStorage.videoDirPath')!,
-        private readonly maxFileSize = this.configService.get<number>('videoSetting.maxSize')!
+    constructor(private readonly fileUploadSettings:ConfigType<typeof fileUploadConfig>,
+        private readonly localStoragePathes: ConfigType <typeof localStorageConfig>,
+        private readonly videoFileDirPath = this.localStoragePathes.videoFilesDirPath!,
+        private readonly maxFileSize = this.fileUploadSettings.maxFileSize!
     ) { }
 
     saveFile = async (sourceFilePath: string): Promise<string> => {
