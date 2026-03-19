@@ -31,14 +31,19 @@ export const envValidationSchema = Joi.object({
         then: Joi.string().required(),
         otherwise: Joi.string().optional()
     }),
-    MONGO_DB_NAME: Joi.string().when('STORAGE_TYPE', {  
+    MONGO_DB_NAME: Joi.string().when('STORAGE_TYPE', {
         is: 'mongo',
         then: Joi.string().required(),
         otherwise: Joi.string().optional()
     }),
     FFMPEG_PATH: Joi.string().required(),
     LOCAL_STORAGE_PATH: Joi.string().required(),
-    MAX_FILE_SIZE:Joi.number().default(1024*1024*1024*5),
+    MAX_FILE_SIZE: Joi.number().default(1024 * 1024 * 1024 * 5),
     VIDEO_CODEC: Joi.string().default('libx264'),
-    VIDEO_BITRATE: Joi.string().default('1000k'),   
+    VIDEO_BITRATE: Joi.string().default('1000k'),
+    AIVEN_OPENSEARCH_USERNAME: Joi.string().required(),
+    AIVEN_OPENSEARCH_PASSWORD: Joi.string().required(),
+    AIVEN_OPENSEARCH_PORT: Joi.string().required(),
+    AIVEN_OPENSEARCH_HOST: Joi.string().required(),
+    LOGS_OPENSEARCH_LEVEL: Joi.string().required()
 })  

@@ -1,8 +1,8 @@
 import { v4 } from "uuid";
 import { join } from "path";
 import * as fs from "fs-extra";
-import { Injectable } from "@nestjs/common";
-import { type ConfigType } from "@nestjs/config";
+import { Inject, Injectable } from "@nestjs/common";
+import type { ConfigType } from "@nestjs/config";
 
 import { IStorage } from "./storage.interface";
 import { localStorageConfig } from "src/config/envConfig";
@@ -12,90 +12,90 @@ import { NotFoundException } from "src/common/custom-errors";
 export class FsService implements IStorage {
     private readonly storageDirPath: string;
 
-    constructor(private readonly localStorageSettings: ConfigType<typeof localStorageConfig>) {
-        this.storageDirPath = this.localStorageSettings.metaDataStoragePath!;
-    }
-    getItem = async <T>(entity: string, itemId: string): Promise<T | null> => {
-        const filePath = join(this.storageDirPath, `${entity}.json`);
-        if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
+    constructor(@Inject(localStorageConfig.KEY) private readonly localStorageSettings: any) {
+    this.storageDirPath = this.localStorageSettings.metaDataStoragePath!;
+}
+getItem = async <T>(entity: string, itemId: string): Promise<T | null> => {
+    const filePath = join(this.storageDirPath, `${entity}.json`);
+    if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
 
-        const items = await fs.readJSON(filePath);
+    const items = await fs.readJSON(filePath);
 
-        const targetItem = items.find((item: any) => item.id === itemId);
-        return targetItem || null;
-    }
+    const targetItem = items.find((item: any) => item.id === itemId);
+    return targetItem || null;
+}
 
-    getItems = async <T>(entity: string): Promise<T[]> => {
-        const filePath = join(this.storageDirPath, `${entity}.json`);
+getItems = async <T>(entity: string): Promise<T[]> => {
+    const filePath = join(this.storageDirPath, `${entity}.json`);
 
-        if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
+    if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
 
-        return await fs.readJSON(filePath);
-    }
+    return await fs.readJSON(filePath);
+}
 
-    insertItem = async <T>(entity: string, item: Partial<T>): Promise<void> => {
-        const structuredItem = {
-            ...item,
-            id: v4(),
-        } as T;
+insertItem = async <T>(entity: string, item: Partial<T>): Promise<void> => {
+    const structuredItem = {
+        ...item,
+        id: v4(),
+    } as T;
 
-        const filePath = join(this.storageDirPath, `${entity}.json`);
-        let items: T[] = [];
+    const filePath = join(this.storageDirPath, `${entity}.json`);
+    let items: T[] = [];
 
-        if (await fs.pathExists(filePath)) {
-            items = await fs.readJSON(filePath);
-        }
-
-        items.push(structuredItem);
-
-        await fs.outputJSON(filePath, items);
+    if (await fs.pathExists(filePath)) {
+        items = await fs.readJSON(filePath);
     }
 
-    deleteItem = async <T>(entity: string, itemId: string): Promise<string> => {
-        const filePath = join(this.storageDirPath, `${entity}.json`);
-        if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
+    items.push(structuredItem);
 
-        let items: T[] = await fs.readJSON(filePath);
-        const itemIndex = items.findIndex((item: any) => item.id === itemId);
+    await fs.outputJSON(filePath, items);
+}
 
-        if (itemIndex === -1) throw new NotFoundException(entity);
-        items.splice(itemIndex, 1);
+deleteItem = async <T>(entity: string, itemId: string): Promise<string> => {
+    const filePath = join(this.storageDirPath, `${entity}.json`);
+    if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
 
-        await fs.outputJSON(filePath, items);
+    let items: T[] = await fs.readJSON(filePath);
+    const itemIndex = items.findIndex((item: any) => item.id === itemId);
 
-        return itemId;
+    if (itemIndex === -1) throw new NotFoundException(entity);
+    items.splice(itemIndex, 1);
+
+    await fs.outputJSON(filePath, items);
+
+    return itemId;
+}
+
+updateItem = async <T>(entity: string, fieldstoUpdate: Partial<T>): Promise<T> => {
+    const { id, ...restFields } = fieldstoUpdate as any;
+    const filePath = join(this.storageDirPath, `${entity}.json`);
+
+    if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
+
+    let items: T[] = await fs.readJSON(filePath);
+    const itemIndex = items.findIndex((item: any) => item.id === id);
+
+    if (itemIndex === -1) throw new NotFoundException(entity);
+
+    for (const key in restFields) {
+        items[itemIndex][key] = restFields[key];
     }
+    const updatedItem = items[itemIndex];
 
-    updateItem = async <T>(entity: string, fieldstoUpdate: Partial<T>): Promise<T> => {
-        const { id, ...restFields } = fieldstoUpdate as any;
-        const filePath = join(this.storageDirPath, `${entity}.json`);
+    await fs.outputJSON(filePath, items);
 
-        if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
+    return updatedItem;
+}
 
-        let items: T[] = await fs.readJSON(filePath);
-        const itemIndex = items.findIndex((item: any) => item.id === id);
+findByFilters = async <T>(entity: string, filters: Partial<T>): Promise<T[] | []> => {
+    const filePath = join(this.storageDirPath, `${entity}.json`);
 
-        if (itemIndex === -1) throw new NotFoundException(entity);
+    if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
 
-        for (const key in restFields) {
-            items[itemIndex][key] = restFields[key];
-        }
-        const updatedItem = items[itemIndex];
+    const items: T[] = await fs.readJSON(filePath);
 
-        await fs.outputJSON(filePath, items);
-
-        return updatedItem;
-    }
-
-    findByFilters = async <T>(entity: string, filters: Partial<T>): Promise<T[] | []> => {
-        const filePath = join(this.storageDirPath, `${entity}.json`);
-
-        if (!(await fs.pathExists(filePath))) throw new NotFoundException(entity);
-
-        const items: T[] = await fs.readJSON(filePath);
-
-        return items.filter(item =>
-            Object.keys(filters).every(key => item[key] === filters[key])
-        );
-    }
+    return items.filter(item =>
+        Object.keys(filters).every(key => item[key] === filters[key])
+    );
+}
 }
