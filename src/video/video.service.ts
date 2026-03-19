@@ -1,23 +1,27 @@
 import { join } from 'path';
 import * as fs from 'fs-extra';
-import { type ConfigType } from '@nestjs/config';
+import type { ConfigType } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 
 import { IVideo } from './video.interface';
 import { localStorageConfig } from 'src/config/envConfig';
 import { CreateVideoDto, UpdateVideoDto } from './video.dto';
-import { type IStorage } from '../databases/storage.interface';
+import type { IStorage } from '../databases/storage.interface';
 import { STORAGE_TOKEN } from '../databases/storage.interface';
 import { TranscoderService } from '../ffmpeg/transcode.service';
-import { type IFileStorage } from 'src/fileStorage/fileStorage.interface';
+import type { IFileStorage } from 'src/fileStorage/fileStorage.interface';
 import { FILE_STORAGE_TOKEN } from 'src/fileStorage/fileStorage.interface';
 
 @Injectable()
 export class VideoService {
+
     constructor(
         @Inject(STORAGE_TOKEN) private readonly storage: IStorage,
         @Inject(FILE_STORAGE_TOKEN) private readonly fileStorage: IFileStorage,
-        private readonly localStoragePathes: ConfigType<typeof localStorageConfig>,
+        @Inject(localStorageConfig.KEY) private readonly localStoragePathes: any,
+        @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
         private readonly transcoderService: TranscoderService
     ) { }
 
@@ -40,7 +44,7 @@ export class VideoService {
         } as Partial<IVideo>;
 
         await this.storage.insertItem<IVideo>('video', videoMetadata);
-        console.log('Video metadata saved successfully');
+        this.logger.log('Video metadata saved successfully');
     }
 
     saveVideoFile = async (sourceFilePath: string) => {

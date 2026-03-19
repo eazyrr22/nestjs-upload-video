@@ -9,7 +9,7 @@ import { MongoService } from './mongoStorage.service';
 @Module({})
 export class StorageRegister {
     static register(storageType: 'mongo' | 'fs'): DynamicModule {
-        const dependencyModules: any[] = [];
+        const dependencyModules: any = [];
 
         if (storageType === 'mongo') {
             dependencyModules.push(MongooseModule);

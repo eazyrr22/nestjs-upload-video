@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import { ConfigService } from '@nestjs/config';
 import { mockClient } from 'aws-sdk-client-mock';
 import { Test, TestingModule } from '@nestjs/testing';
-import { S3Client, PutObjectCommand, DeleteObjectCommand, DeleteObjectTaggingCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 import { S3FileService } from './s3.service';
 
